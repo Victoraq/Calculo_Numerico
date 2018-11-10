@@ -4,7 +4,7 @@ def substituicao(matriz,vetorb):
     # Dimensão da matrix
     N = len(vetorb)
     # Vetor de incognitas
-    x = np.array([np.float64(0)]*N)
+    x = np.array([np.float128(0)]*N)
     x[0] = vetorb[0]/matriz[0][0]
 
     for i in range(1,N):
@@ -15,7 +15,7 @@ def substituicao(matriz,vetorb):
         
         x[i] = s / matriz[i][i]
     
-    return x
+    return np.float128(x)
 
 
 
@@ -23,7 +23,7 @@ def retro_substituicao(matriz,vetorb):
     # Dimensão da matrix
     N = len(vetorb)
     # Vetor de incognitas
-    x = np.array([np.float64(0)]*N)
+    x = np.array([np.float128(0)]*N)
     x[N-1] = vetorb[N-1]/matriz[N-1][N-1]
 
     for i in np.arange(N-2,-1,-1):
@@ -34,7 +34,7 @@ def retro_substituicao(matriz,vetorb):
         
         x[i] = s / matriz[i][i]
     
-    return x
+    return np.float128(x)
 
 
 
@@ -106,12 +106,12 @@ def Gauss_pivot(matriz,vetorb):
 
 def LU(A,B):
     N = len(A)
-    U = np.array(A)
-    L = np.array([[np.float64(0)]*N]*N)
+    U = np.array(A, dtype=np.float128)
+    L = np.array([[np.float128(0)]*N]*N)
     iteracoes = 0
     
     for x in range(N):
-        L[x][x] = 1
+        L[x][x] = np.float128(1)
     
     for i in range(N-1):
         iteracoes+=1
@@ -119,7 +119,7 @@ def LU(A,B):
             iteracoes+=1
             L[j][i] = U[j][i] / U[i][i]
             U[j] = U[j] - L[j][i] * U[i]
-            U[j][i] = 0
+            U[j][i] = 0.0
 
     y = substituicao(L,B)
     x = retro_substituicao(U,y)
