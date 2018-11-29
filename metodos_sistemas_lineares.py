@@ -117,6 +117,7 @@ def LU(A,B):
         iteracoes+=1
         for j in range(i+1,N):
             iteracoes+=1
+            print(U[i][i])
             L[j][i] = U[j][i] / U[i][i]
             U[j] = U[j] - L[j][i] * U[i]
             U[j][i] = 0.0

@@ -1,5 +1,6 @@
 import numpy as np
-from metodos_sistemas_lineares import LU
+from metodos_sistemas_lineares import Cholesky
+from metodos_integracao_numerica import quadratura_gauss
 
 def minimos_quadrados(x,y,n):
     """
@@ -30,7 +31,6 @@ def minimos_quadrados(x,y,n):
             linha.append(np.dot(phi[i],phi[j]))
         matriz.append(linha)
         
-    #matriz = np.matrix(matriz, dtype=np.float64)
     
     b = [np.dot(y,p) for p in phi]
     
@@ -68,3 +68,54 @@ def coeficiente_determinacao(x,y,p):
     r = np.sqrt(1 - numerador/denominador)
     
     return r
+
+def __func_prod(f,g,grauf,graug):
+    return lambda x: f(x,grauf) * g(x,graug)
+
+def phi(x,grau):
+    return x**grau;
+
+def prod_phi(phi, grau1, grau2):
+    return lambda x: phi(x,grau1) * phi(x,grau2)
+
+def minimos_quadrados_cont(f,a,b,n):
+    """
+    
+        Executa e retorna a função do método dos Mínimos Quadrados para o caso contínuo.
+        
+        Parametros:
+        ------------
+        f: Função a ser interpolada.
+        a,b: Inicio e fim do intervalo de integração.
+        n: Inteiro representando a ordem de integração.
+        
+        Retorna:
+        ------------
+        function: Função lambda que representa a função de mínimos quadrados.
+        
+    """
+    
+    colunaB = []
+    
+    matriz = []
+    for i in range(n+1):
+        linha = []
+        for j in range(n+1):
+            prod = prod_phi(phi, i, j)
+            integral = quadratura_gauss(prod,a,b,n+1) # realizando a integral do produto de funções
+            
+            linha.append(integral) 
+        matriz.append(linha)
+    
+    for i in range(n+1):
+        prod = lambda x: f(x)*phi(x,i) # realizando o produto entre as funções
+            
+        integral = quadratura_gauss(prod,a,b,n+1) # realizando a integral do produto de funções
+        
+        colunaB.append(integral)
+    
+    colunaB = np.array(colunaB, dtype=np.float128)
+    
+    constantes = Cholesky(matriz, colunaB)[0] # [0] para selecionar somente o vetor de valores
+
+    return lambda x: sum([np.float128((x**i)*c) for (c,i) in zip(constantes,range(n+1))])
